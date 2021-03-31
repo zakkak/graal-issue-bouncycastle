@@ -1,16 +1,18 @@
-import org.bouncycastle.math.raw.Nat256;
+import java.security.SecureRandom;
 
-import java.math.BigInteger;
+import org.bouncycastle.crypto.EntropySourceProvider;
+import org.bouncycastle.crypto.fips.*;
+import org.bouncycastle.crypto.util.BasicEntropySourceProvider;
+import org.bouncycastle.util.Pack;
 
 public class Main {
 
     public static void main(String[] args) {
-        int array1[] = Nat256.fromBigInteger(new BigInteger("1234"));
-        int array2[] = Nat256.fromBigInteger(new BigInteger("5678"));
-        int array3[] = Nat256.createExt();
-        Nat256.mul(array1, array2, array3);
-        for (int i = 0; i < array3.length; i++) {
-            System.out.println(array3[i]);
+        EntropySourceProvider entSource = new BasicEntropySourceProvider(new SecureRandom(), true);
+        FipsDRBG.Builder drgbBldr = FipsDRBG.SHA512.fromEntropySource(entSource).setSecurityStrength(256).setEntropyBitsRequired(256);
+        SecureRandom random = drgbBldr.build(Pack.longToBigEndian(System.currentTimeMillis()), true);
+        for (int i = 0; i < 5; i++) {
+            System.out.println(random.nextInt());
         }
     }
 }
